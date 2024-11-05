@@ -2,35 +2,41 @@
 import streamlit as st
 import pickle
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeClassifier
 
-# Load the trained RandomForest model and scaler
+# Load the trained model and scaler
 with open('diabetes_model.pkl', 'rb') as model_file:
     model = pickle.load(model_file)
 
 with open('sc.pkl', 'rb') as scaler_file:
     scaler = pickle.load(scaler_file)
 
-# Create the web app
+# Create the Streamlit web app
 st.title('Diabetes Prediction App')
 
 # Input fields
-Pregnancies = st.number_input('Pregnancies', min_value=0.0, max_value=20.0, value=0.0, step=1.0)
-Glucose = st.number_input('Glucose', min_value=0.0, max_value=400.0, value=30.0, step=1.0)
-BloodPressure = st.number_input('BloodPressure', min_value=0.0, max_value=200.0, value=0.0, step=1.0)
-SkinThickness = st.number_input('SkinThickness', min_value=0.0, max_value=200.0, value=0.0, step=1.0)
-Insulin = st.number_input('Insulin', min_value=0.0, max_value=700.0, value=0.0, step=1.0)
-DiabetesPedigreeFunction = st.number_input('DiabetesPedigreeFunction', min_value=0.0, max_value=2.0, value=0.0, step=0.01)
-BMI = st.number_input('BMI', min_value=0.0, max_value=150.0, value=20.0, step=0.1)
-Age = st.number_input('Age', min_value=15.0, max_value=100.0, value=25.0, step=1.0)
+pregnancies = st.number_input('Pregnancies', min_value=0, value=0)
+glucose = st.number_input('Glucose', min_value=0.0, value=0.0)
+blood_pressure = st.number_input('Blood Pressure', min_value=0.0, value=0.0)
+skin_thickness = st.number_input('Skin Thickness', min_value=0.0, value=0.0)
+insulin = st.number_input('Insulin', min_value=0.0, value=0.0)
+bmi = st.number_input('BMI', min_value=0.0, value=0.0)
+dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=0.0)
+age = st.number_input('Age', min_value=0, max_value=120, value=0)
 
 # Prepare the feature vector
-features = np.array([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]], dtype=np.float64)
+features = np.array([[pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]], dtype=np.float64)
 
 # Scale the features
 features_scaled = scaler.transform(features)
 
-# Predict Diabetes
-predicted_Diabetes = model.predict(features_scaled)
+# Predict using the loaded model
+predicted_class = model.predict(features_scaled)
 
-prediction_label = "Yes" if predicted_Diabetes[0] == 1 else "No"
-st.write(f'Predicted Diabetes: {prediction_label}')
+# Display the result
+if st.button('Predict'):
+    if predicted_class[0] == 1:
+        st.write("Prediction: You have Diabetes.")
+    else:
+        st.write("Prediction: You do not have Diabetes.")
